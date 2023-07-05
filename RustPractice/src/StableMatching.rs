@@ -7,6 +7,8 @@
 //.try_into().unwrap()強制轉型別
 //64行todo!() 宏是一個在編譯時生成警告的占位符，它不會導致運行時的錯誤，但它提醒你尚未完成某些功能的實現。
 //rustc StableMatching.rs 編譯 ./StableMatching 執行
+//建議用linked list 去處理free man 每次處理就取一個出來，有人變free就加回去linked list 直到linked list 為空
+//女性的排名需要按照男性是幾號排也就是index是男生編號value是名次
 use std::convert::TryInto;
 fn check_match(array: [bool; 5]) ->bool{
     for i in 0..array.len(){

@@ -1,12 +1,18 @@
-// mod StableMatching;
+// mod test;
+mod StableMatching2;
+mod StableMatching;
+use std::time::Instant;
 //intellij 編譯器只會讀這個檔案的資料所以必須使用module去執行它
 fn main() {
-    // StableMatching::main();
-    let mut vec:Vec<i32>=Vec::new();
-    vec.push(2);
-    vec.push(7);
-    vec.push(4);
-    println!("{} {}",vec[vec.len()-1],vec.len());
-    vec.pop();
-    println!("{}",vec[vec.len()-1])
+    let start = Instant::now();
+    StableMatching::main();
+    let duration = start.elapsed();
+    println!("V1程式執行時間: {:?}", duration);
+    println!("----------------");
+    let start = Instant::now();
+    StableMatching2::main();
+    let duration = start.elapsed();
+    println!("V2程式執行時間: {:?}", duration);
+    // test::main();
+
 }
