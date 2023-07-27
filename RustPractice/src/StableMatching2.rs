@@ -7,7 +7,7 @@
 //.try_into().unwrap()強制轉型別
 //64行todo!() 宏是一個在編譯時生成警告的占位符，它不會導致運行時的錯誤，但它提醒你尚未完成某些功能的實現。
 //rustc StableMatching.rs 編譯 ./StableMatching 執行
-use std::collections::LinkedList;
+use std::collections::linked_list::LinkedList;
 //是否與現任男友分手？
 pub fn main(){
     //男生的rank
