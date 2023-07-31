@@ -1,13 +1,11 @@
-use std::collections::LinkedList;
-use std::option::Option::Some;
-pub(crate) fn main() {
-    let mut i:i32=0;
-    while i>5 {
-        i+=1;
-        println!("{}",i);
 
-        loop{
-            break;
-        }
+
+pub fn main() {
+    let mut tree:Vec<i32>=Vec::new();
+    if(tree.len()>0){
+        println!("success")
+    }
+    else{
+        print!("aaaaaa")
     }
 }
