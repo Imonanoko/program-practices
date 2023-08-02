@@ -12,6 +12,8 @@ contract EtherGame {
     function play() public payable {
         require(msg.value == 0.5 ether); // each play is 0.5 ether
         uint currentBalance = this.balance + msg.value;
+         address caller,
+         address receiver,
         // ensure no players after the game as finished
         require(currentBalance <= finalMileStone);
         // if at a milestone credit the players account
@@ -28,6 +30,9 @@ contract EtherGame {
     }
 
     function claimReward() public {
+        address owner,
+        uint256 assets,
+        uint256 shares
         // ensure the game is complete
         require(this.balance == finalMileStone);
         // ensure there is a reward to give
