@@ -1,6 +1,9 @@
+import object.contract;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+
 
 //"C:\\Users\\Six square\\Desktop\\程式語言練習\\java\\smart_contract\\src\\main\\java\\contract.txt"
 public class library {
@@ -51,7 +54,7 @@ public class library {
                         i++;
                     }
                     //如果是;、(、)等字元會被區分開來，亦即;、(、{是被獨立加進word裡面的
-                    case ';', '(', ')', '{', '}', '.', '\'', ',','~','[',']' -> {
+                    case ';', '(', ')', '{', '}', '.', '\'', ',', '~', '[', ']', '?' -> {
                         if (!word.toString().equals("")) {
                             word_List.add(word.toString());
                             word.setLength(0);
@@ -78,7 +81,7 @@ public class library {
 
                     }
                     //遇到運算式需要將符號分開並檢查後面是否有符號
-                    case '+', '-', '%' -> {
+                    case '+', '-', '%', '^' -> {
                         if (!word.toString().equals("")) {
                             word_List.add(word.toString());
                             word.setLength(0);
@@ -123,111 +126,219 @@ public class library {
         return lines;
     }
 
-    //輸出格是每一列表一個問題[第幾行的if or require,甚麼變數,可能出現什麼值造成錯誤];
-    //輸入:
+    private static String find_visibility(List<String> line) {
+        for (String word : line) {
+            switch (word) {
+                case "public" -> {
+                    return "public";
+                }
+                case "private" -> {
+                    return "private";
+                }
+                case "internal" -> {
+                    return "internal";
+                }
+                case "external" -> {
+                    return "external";
+                }
+            }
+        }
+        return "public";
+    }
+
+    private static boolean is_array(List<String> line) {
+        if (line.contains("[") && line.contains("]")) {
+            return true;
+        }
+        return false;
+    }
+
+    private static String find_array_size(List<String> line) {
+        for (int i = 0; i < line.size(); i++) {
+            String word = line.get(i);
+            if (Objects.equals(word, "[")) {
+                i++;
+                if (!Objects.equals(line.get(i), "]")) {
+                    return line.get(i);
+                }
+            }
+        }
+
+        return "INF";
+    }
+
+    private static String find_array_name(List<String> line) {
+        List<String> sub_list;
+        if (line.contains("=")) {
+            sub_list = line.subList(1, line.indexOf("="));
+        } else {
+            sub_list = line.subList(1, line.indexOf(";"));
+        }
+        String size = find_array_size(line);
+        sub_list.remove("[");
+        sub_list.remove("]");
+        sub_list.remove(size);
+        if (line.contains("public") || line.contains("private") || line.contains("internal") || line.contains("external")) {
+            return sub_list.get(1);
+        }
+        return sub_list.get(0);
+
+    }
+
+    private static List<List<String>> find_parameter(List<String> line) {
+        List<List<String>> find_parameter = new ArrayList<>();
+        List<List<String>> parameter_set = new ArrayList<>();
+        List<String> tmp = new ArrayList<>();
+        for (int i = line.indexOf("(") + 1; i < line.indexOf(")"); i++) {
+            if (Objects.equals(line.get(i), ",")) {
+                parameter_set.add(new ArrayList<>(tmp));
+                tmp.clear();
+            } else {
+                tmp.add(line.get(i));
+            }
+        }
+        parameter_set.add(new ArrayList<>(tmp));
+        tmp.clear();
+        for (List<String> P : parameter_set) {
+            if(P.isEmpty()){
+                return find_parameter;
+            }
+            else if (is_array(P)) {
+                tmp.add("true");
+                tmp.add(P.get(4));
+                tmp.add(P.get(0));
+
+
+            } else {
+                tmp.add("false");
+                tmp.add(P.get(1));
+                tmp.add(P.get(0));
+            }
+            find_parameter.add(tmp);
+            tmp.clear();
+        }
+        return find_parameter;
+    }
+
     //lines:檔案分析後的資料
-    protected static List<List<List<String>>> variable_analyses(List<List<String>> lines) {
-        List<List<List<String>>> var = new ArrayList<>();
-        //存取全域變數的名稱
-        List<List<String>> contract_global_var = new ArrayList<>();
-        //不同合約有不同的全域變數[合約名稱,變數名稱]
-        List<String> global_var = new ArrayList<>();
-        //存取區域變，每個row是[函數名稱,裡面的變數名稱]
-        List<List<String>> function_local_var = new ArrayList<>();
-        //function_local_var 的row暫存
-        List<String> local_var = new ArrayList<>();
+    protected static List<contract> variable_analyses(List<List<String>> lines) {
+        //包含所有合約的變數、函數
+        List<contract> contract_list = new ArrayList<>();
+        //暫存每個區塊的變數[name,type]
+        List<List<String>> variables = new ArrayList<>();
+        //暫存每個區塊的陣列變數[name,size,type]
+        List<List<String>> array_variables = new ArrayList<>();
+        boolean[] function_or_struct = {false, false};
         //判斷大括號的暫存器[contract,function,if_elif,for,while]
-        List<Integer> flag = new ArrayList<>();
+        List<Boolean> flag = new ArrayList<>();
         String word;
+        //暫存index用
+        int index;
         // i+1為行數
         for (List<String> line : lines) {
+            loop_out:
             for (int j = 0; j < line.size(); j++) {
                 word = line.get(j);
                 switch (word) {
                     case "contract" -> {
-                        flag.add(0);
-                        //前面有合約就加入到contract_global_var
-                        if (global_var.size() != 0) {
-                            contract_global_var.add(new ArrayList<>(global_var));
-                            global_var.clear();
-                        }
-                        //加入名稱
-                        j++;
-                        global_var.add(line.get(j));
+                        flag.add(true);
+                        contract_list.add(new contract(line.get(j + 1)));
+                        break loop_out;
                     }
                     case "function" -> {
-                        flag.add(0);
-                        if (local_var.size() != 0) {
-                            function_local_var.add(new ArrayList<>(local_var));
-                            local_var.clear();
-                        }
-                        j++;
-                        local_var.add(line.get(j));
+                        flag.add(true);
+                        variables = new ArrayList<>();
+                        array_variables = new ArrayList<>();
+                        index = contract_list.size() - 1;
+                        List<List<String>> parameter = find_parameter(line);
+                        contract_list.get(index).add_function(line.get(++j), find_visibility(line), parameter);
+                        function_or_struct[0] = true;
+                        break loop_out;
                     }
-                    case "if" -> {
-                        flag.add(0);
+                    case "struct" -> {
+                        flag.add(true);
+                        variables = new ArrayList<>();
+                        array_variables = new ArrayList<>();
+                        index = contract_list.size() - 1;
+                        contract_list.get(index).add_struct(line.get(++j));
+                        function_or_struct[1] = true;
+                        break loop_out;
                     }
-                    case "else" -> {
-                        flag.add(0);
-                        if (line.get(j + 1).equals("if"))
-                            j++;
+                    case "if", "for", "while", "do", "else","constructor" -> {
+                        flag.add(true);
+                        break loop_out;
                     }
-                    case "{" -> {
-                        int index = flag.size() - 1;
-                        //旗標+1
-                        flag.set(index, flag.get(index) + 1);
-                    }
+//                    case "else" -> {
+//                        flag.add(true);
+//                        if (line.get(j + 1).equals("if"))
+//                            j++;
+//                    }
                     case "}" -> {
-                        int index = flag.size() - 1;
-                        //旗標-1
-                        flag.set(index, flag.get(index) - 1);
-                        if (flag.get(index) == 0) {
-                            flag.remove(index);
-                        }
-                    }
-                    case "uint", "address", "uint256", "int" -> {
-                        j++;
-                        word = line.get(j);
-                        switch (word) {
-                            //待新增，可能遇到宣告型別是陣列之類的
-                            case ")", "(" -> {
-
+                        int flag_index = flag.size() - 1;
+                        if (flag.size() == 2) {
+                            //function
+                            if (function_or_struct[0]) {
+                                index = contract_list.size() - 1;
+                                contract_list.get(index).add_function_local_variable(variables);
+                                contract_list.get(index).add_function_array_variable(array_variables);
                             }
-                            default -> {
-                                //等於一代表全域變數
-                                if (flag.size() == 1) {
+                            //struct
+                            if (function_or_struct[1]) {
+                                index = contract_list.size() - 1;
+                                contract_list.get(index).add_struct_variable(variables);
+                                contract_list.get(index).add_struct_array_variable(array_variables);
+                            } else {
+                                System.out.println("error");
+                            }
+                            //將讀到的variable_list存入
+                            function_or_struct[0] = false;
+                            function_or_struct[1] = false;
+                        }
+                        flag.remove(flag_index);
+                    }
+                    case "int", "int8", "int16", "int24", "int32", "int40", "int48", "int56", "int64", "int72", "int80", "int88", "int96", "int104", "int112", "int120", "int128", "int136", "int144", "int152", "int160", "int168", "int176", "int184", "int192", "int200", "int208", "int216", "int224", "int232", "int240", "int248", "int256",
+                            "uint", "uint8", "uint16", "uint24", "uint32", "uint40", "uint48", "uint56", "uint64", "uint72", "uint80", "uint88", "uint96", "uint104", "uint112", "uint120", "uint128", "uint136", "uint144", "uint152", "uint160", "uint168", "uint176", "uint184", "uint192", "uint200", "uint208", "uint216", "uint224", "uint232", "uint240", "uint248", "uint256",
+                            "address", "string", "bytes" -> {
+                        if (j == 0) {
 
-                                    switch (word) {
-                                        case "public", "private" -> {
-                                            j++;
-                                            global_var.add(line.get(j));
-                                        }
-                                        default -> {
-                                            global_var.add(line.get(j));
-                                        }
-                                    }
+                            //區域變數
+                            if (function_or_struct[0] || function_or_struct[1]) {
+                                String next = line.get(j + 1);
+                                if (is_array(line)) {
+                                    String size = find_array_size(line);
+                                    assert size != null;
+                                    array_variables.add(new ArrayList<>(List.of(find_array_name(line), size, word)));
                                 } else {
-                                    local_var.add(word);
+                                    variables.add(new ArrayList<>(List.of(line.get(j + 1), word)));
                                 }
                             }
+                            //全域變數
+                            else {
+                                String visibility = find_visibility(line);
+                                //是array的話
+                                if (is_array(line)) {
+                                    String size = find_array_size(line);
+                                    index = contract_list.size() - 1;
+                                    contract_list.get(index).add_array(new ArrayList<>(List.of(find_array_name(line), size, visibility, word)));
+                                }
+                                //不是array的話
+                                else {
+                                    String name = "";
+                                    if (line.contains(visibility)) {
+                                        name = line.get(2);
+                                    } else {
+                                        name = line.get(1);
+                                    }
+                                    index = contract_list.size() - 1;
+                                    contract_list.get(index).add_global_variable(new ArrayList<>(List.of(name, word, visibility)));
+                                }
+                            }
+                            break loop_out;
                         }
-
                     }
                 }
-//                switch (word){
-//                    case "if" ->{
-//                        System.out.println("if at:"+(i+1)+":"+j);
-//                    }
-//                    case "require" ->{
-//                        System.out.println("require at:"+(i+1)+":"+j);
-//                    }
-//                }
             }
         }
-        contract_global_var.add(new ArrayList<>(global_var));
-        function_local_var.add(new ArrayList<>(local_var));
-        var.add(new ArrayList<>(contract_global_var));
-        var.add(new ArrayList<>(function_local_var));
-        return var;
+        return contract_list;
     }
 }

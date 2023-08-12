@@ -1,12 +1,14 @@
 contract EtherGame {
 
     uint public payoutMileStone1 = 3 ether;
-    uint public mileStone1Reward = 2 ether;
-    uint public payoutMileStone2 = 5 ether;
-    uint public mileStone2Reward = 3 ether;
-    uint public finalMileStone = 10 ether;
-    uint public finalReward = 5 ether;
+    uint256 public globalValue;
+    uint256[] public globalArray;
 
+    struct Person {
+            string name;
+            uint256 age;
+            uint256[] favoriteNumbers;
+    }
     mapping(address => uint) redeemableEther;
     // users pay 0.5 ether. At specific milestones, credit their accounts
     function play() public payable {
@@ -26,9 +28,11 @@ contract EtherGame {
         else if (currentBalance == finalMileStone ) {
             redeemableEther[msg.sender] += finalReward;
         }
+        uint private  x[28];
         return;
     }
-
+    uint public finalMileStone = 10 ether;
+    uint public finalReward = 5 ether;
     function claimReward() public {
         address owner,
         uint256 assets,
@@ -36,6 +40,7 @@ contract EtherGame {
         // ensure the game is complete
         require(this.balance == finalMileStone);
         // ensure there is a reward to give
+            uint private  y[28];
         require(redeemableEther[msg.sender] > 0);
         redeemableEther[msg.sender] = 0;
         msg.sender.transfer(redeemableEther[msg.sender]);
