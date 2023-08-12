@@ -51,7 +51,7 @@ public class library {
                         i++;
                     }
                     //如果是;、(、)等字元會被區分開來，亦即;、(、{是被獨立加進word裡面的
-                    case ';', '(', ')', '{', '}', '.', '\'', ',' -> {
+                    case ';', '(', ')', '{', '}', '.', '\'', ',','~','[',']' -> {
                         if (!word.toString().equals("")) {
                             word_List.add(word.toString());
                             word.setLength(0);
@@ -140,74 +140,73 @@ public class library {
         List<Integer> flag = new ArrayList<>();
         String word;
         // i+1為行數
-        for (int i = 0; i < lines.size(); i++) {
-            for (int j = 0; j < lines.get(i).size(); j++) {
-                word = lines.get(i).get(j);
+        for (List<String> line : lines) {
+            for (int j = 0; j < line.size(); j++) {
+                word = line.get(j);
                 switch (word) {
-                    case "contract" ->{
+                    case "contract" -> {
                         flag.add(0);
                         //前面有合約就加入到contract_global_var
-                        if(global_var.size()!=0){
+                        if (global_var.size() != 0) {
                             contract_global_var.add(new ArrayList<>(global_var));
                             global_var.clear();
                         }
                         //加入名稱
                         j++;
-                        global_var.add(lines.get(i).get(j));
+                        global_var.add(line.get(j));
                     }
-                    case "function" ->{
+                    case "function" -> {
                         flag.add(0);
-                        if(local_var.size()!=0){
+                        if (local_var.size() != 0) {
                             function_local_var.add(new ArrayList<>(local_var));
                             local_var.clear();
                         }
                         j++;
-                        local_var.add(lines.get(i).get(j));
+                        local_var.add(line.get(j));
                     }
-                    case  "if" -> {
+                    case "if" -> {
                         flag.add(0);
                     }
                     case "else" -> {
                         flag.add(0);
-                        if (lines.get(i).get(j + 1).equals("if"))
+                        if (line.get(j + 1).equals("if"))
                             j++;
                     }
                     case "{" -> {
-                        int index = flag.size()-1;
+                        int index = flag.size() - 1;
                         //旗標+1
                         flag.set(index, flag.get(index) + 1);
                     }
                     case "}" -> {
-                        int index = flag.size()-1;
+                        int index = flag.size() - 1;
                         //旗標-1
-                        flag.set(index,flag.get(index) - 1);
-                        if(flag.get(index)==0){
+                        flag.set(index, flag.get(index) - 1);
+                        if (flag.get(index) == 0) {
                             flag.remove(index);
                         }
                     }
-                    case "uint","address","uint256" ->{
+                    case "uint", "address", "uint256", "int" -> {
                         j++;
-                        word = lines.get(i).get(j);
-                        switch (word){
+                        word = line.get(j);
+                        switch (word) {
                             //待新增，可能遇到宣告型別是陣列之類的
-                            case ")","("->{
+                            case ")", "(" -> {
 
                             }
                             default -> {
                                 //等於一代表全域變數
-                                if(flag.size()==1){
+                                if (flag.size() == 1) {
 
-                                    switch (word){
-                                        case "public","private" ->{
+                                    switch (word) {
+                                        case "public", "private" -> {
                                             j++;
-                                            global_var.add(lines.get(i).get(j));
+                                            global_var.add(line.get(j));
                                         }
                                         default -> {
-                                            global_var.add(lines.get(i).get(j));
+                                            global_var.add(line.get(j));
                                         }
                                     }
-                                }
-                                else{
+                                } else {
                                     local_var.add(word);
                                 }
                             }
