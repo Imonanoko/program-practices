@@ -33,7 +33,8 @@ public class contract {
             this.name = name;
         }
     }
-
+    //Ä~©Ó½Ö
+    List<String> parents = new ArrayList<>();
     String name;
     //[name,type,visibility]
     List<List<String>> global_variable_list = new ArrayList<>();
@@ -81,41 +82,45 @@ public class contract {
         int index = struct_list.size()-1;
         struct_list.get(index).struct_array_List = struct_array_List;
     }
+    public void add_inheritance(List<String> parents){
+        this.parents = parents;
+
+    }
 
     public void display() {
-        System.out.println("contract name: " + name);
-        System.out.println("Global variable:");
+        System.out.println("contract name: " + name+" ,parents: "+parents);
+        System.out.println("    Global variable:");
         for (List<String> Global_variable : global_variable_list) {
             if (Global_variable.size() != 0)
-                System.out.println("variable name: " + Global_variable.get(0) + " ,type: " + Global_variable.get(1) + " ,visibility: " + Global_variable.get(2));
+                System.out.println("        variable name: " + Global_variable.get(0) + " ,type: " + Global_variable.get(1) + " ,visibility: " + Global_variable.get(2));
         }
-        System.out.println("Global array variable:");
+        System.out.println("    Global array variable:");
         for (List<String> array : array_list) {
             if (array.size() != 0)
-                System.out.println("array name: " + array.get(0) +" ,size: " + array.get(1) + " ,visibility: " + array.get(2)+ " ,type: "+ array.get(3));
+                System.out.println("        array name: " + array.get(0) +" ,size: " + array.get(1) + " ,visibility: " + array.get(2)+ " ,type: "+ array.get(3));
         }
         System.out.println("function:");
         for(function f: function_list){
             System.out.println("function name: "+f.name+" ,visibility: "+f.visibility+" ,parameter: "+f.parameter);
             System.out.println("    local variable:");
             for(List<String> v:f.local_variable_List){
-                System.out.println("    variable name: "+v.get(0)+" ,type: "+v.get(1));
+                System.out.println("        variable name: "+v.get(0)+" ,type: "+v.get(1));
             }
             System.out.println("    local array variable:");
             for(List<String> av:f.local_array_List){
-                System.out.println("    variable name: "+av.get(0)+" ,size: "+av.get(1)+" ,type: "+av.get(2));
+                System.out.println("        variable name: "+av.get(0)+" ,size: "+av.get(1)+" ,type: "+av.get(2));
             }
         }
-        System.out.println("contract:");
+        System.out.println("struct:");
         for(struct s: struct_list){
-            System.out.println("contract name: "+s.name);
+            System.out.println("struct name: "+s.name);
             System.out.println("    struct variable name:");
             for(List<String> v:s.struct_variable_list){
-                System.out.println("    variable name: "+v.get(0)+" ,type: "+v.get(1));
+                System.out.println("        variable name: "+v.get(0)+" ,type: "+v.get(1));
             }
             System.out.println("    struct array variable name: ");
             for(List<String> av:s.struct_array_List){
-                System.out.println("    variable name: "+av.get(0)+" ,size: "+av.get(1)+" ,type: "+av.get(2));
+                System.out.println("        variable name: "+av.get(0)+" ,size: "+av.get(1)+" ,type: "+av.get(2));
             }
         }
     }

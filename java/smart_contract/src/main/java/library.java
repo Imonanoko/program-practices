@@ -147,10 +147,7 @@ public class library {
     }
 
     private static boolean is_array(List<String> line) {
-        if (line.contains("[") && line.contains("]")) {
-            return true;
-        }
-        return false;
+        return line.contains("[") && line.contains("]");
     }
 
     private static String find_array_size(List<String> line) {
@@ -172,12 +169,15 @@ public class library {
         if (line.contains("=")) {
             sub_list = line.subList(1, line.indexOf("="));
         } else {
-            sub_list = line.subList(1, line.indexOf(";"));
+            sub_list = line.subList(1, line.size());
         }
+        sub_list.remove(";");
         String size = find_array_size(line);
         sub_list.remove("[");
         sub_list.remove("]");
         sub_list.remove(size);
+        sub_list.remove("memory");
+//        if(sub_list.contains("memory"))
         if (line.contains("public") || line.contains("private") || line.contains("internal") || line.contains("external")) {
             return sub_list.get(1);
         }
@@ -199,13 +199,14 @@ public class library {
         }
         parameter_set.add(new ArrayList<>(tmp));
         tmp.clear();
+
         for (List<String> P : parameter_set) {
             if(P.isEmpty()){
                 return find_parameter;
             }
             else if (is_array(P)) {
                 tmp.add("true");
-                tmp.add(P.get(4));
+                tmp.add(find_array_name(P));
                 tmp.add(P.get(0));
 
 
@@ -214,12 +215,23 @@ public class library {
                 tmp.add(P.get(1));
                 tmp.add(P.get(0));
             }
-            find_parameter.add(tmp);
+            find_parameter.add(new ArrayList<>(tmp));
             tmp.clear();
         }
         return find_parameter;
     }
-
+    private static List<String> find_parents(List<String> line){
+        if(!line.contains("is")){
+            return new ArrayList<>();
+        }
+        List<String> parents = new ArrayList<>();
+        for(int i= line.indexOf("is")+1;i< line.size();i++){
+            if(!Objects.equals(line.get(i), ",") && !Objects.equals(line.get(i), "{")){
+                parents.add(line.get(i));
+            }
+        }
+        return parents;
+    }
     //lines:檔案分析後的資料
     protected static List<contract> variable_analyses(List<List<String>> lines) {
         //包含所有合約的變數、函數
@@ -243,6 +255,8 @@ public class library {
                     case "contract" -> {
                         flag.add(true);
                         contract_list.add(new contract(line.get(j + 1)));
+                        index = contract_list.size()-1;
+                        contract_list.get(index).add_inheritance(find_parents(line));
                         break loop_out;
                     }
                     case "function" -> {
@@ -298,12 +312,12 @@ public class library {
                     }
                     case "int", "int8", "int16", "int24", "int32", "int40", "int48", "int56", "int64", "int72", "int80", "int88", "int96", "int104", "int112", "int120", "int128", "int136", "int144", "int152", "int160", "int168", "int176", "int184", "int192", "int200", "int208", "int216", "int224", "int232", "int240", "int248", "int256",
                             "uint", "uint8", "uint16", "uint24", "uint32", "uint40", "uint48", "uint56", "uint64", "uint72", "uint80", "uint88", "uint96", "uint104", "uint112", "uint120", "uint128", "uint136", "uint144", "uint152", "uint160", "uint168", "uint176", "uint184", "uint192", "uint200", "uint208", "uint216", "uint224", "uint232", "uint240", "uint248", "uint256",
+                            "bytes1", "bytes2", "bytes3", "bytes4", "bytes5", "bytes6", "bytes7", "bytes8", "bytes9", "bytes10", "bytes11", "bytes12", "bytes13", "bytes14", "bytes15", "bytes16", "bytes17", "bytes18", "bytes19", "bytes20", "bytes21", "bytes22", "bytes23", "bytes24", "bytes25", "bytes26", "bytes27", "bytes28", "bytes29", "bytes30", "bytes31", "bytes32",
                             "address", "string", "bytes" -> {
                         if (j == 0) {
 
                             //區域變數
                             if (function_or_struct[0] || function_or_struct[1]) {
-                                String next = line.get(j + 1);
                                 if (is_array(line)) {
                                     String size = find_array_size(line);
                                     assert size != null;
@@ -323,7 +337,7 @@ public class library {
                                 }
                                 //不是array的話
                                 else {
-                                    String name = "";
+                                    String name;
                                     if (line.contains(visibility)) {
                                         name = line.get(2);
                                     } else {
@@ -341,4 +355,7 @@ public class library {
         }
         return contract_list;
     }
+//    protected static void minimum_visibility(List<List<String>> lines , List<contract> contracts){
+//
+//    }
 }
