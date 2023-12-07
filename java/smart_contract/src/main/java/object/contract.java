@@ -42,11 +42,14 @@ public class contract {
     List<List<String>> array_list = new ArrayList<>();
     List<function> function_list = new ArrayList<>();
     List<struct> struct_list = new ArrayList<>();
-
+    boolean init;
     public contract(String name) {
         this.name = name;
+        init=false;
     }
-
+    public void NeedInit(){
+        init=true;
+    }
     public void add_global_variable(List<String> variable) {
         global_variable_list.add(variable);
     }
@@ -88,15 +91,15 @@ public class contract {
     }
 
     public void display() {
-        System.out.println("contract name: " + name+" ,parents: "+parents);
+        System.out.println("contract name: " + name+" ,parents: "+parents+"init:"+(init?"yes":"no"));
         System.out.println("    Global variable:");
         for (List<String> Global_variable : global_variable_list) {
-            if (Global_variable.size() != 0)
+            if (!Global_variable.isEmpty())
                 System.out.println("        variable name: " + Global_variable.get(0) + " ,type: " + Global_variable.get(1) + " ,visibility: " + Global_variable.get(2));
         }
         System.out.println("    Global array variable:");
         for (List<String> array : array_list) {
-            if (array.size() != 0)
+            if (!array.isEmpty())
                 System.out.println("        array name: " + array.get(0) +" ,size: " + array.get(1) + " ,visibility: " + array.get(2)+ " ,type: "+ array.get(3));
         }
         System.out.println("function:");

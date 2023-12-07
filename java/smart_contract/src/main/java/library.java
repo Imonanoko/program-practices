@@ -1,23 +1,26 @@
 import object.contract;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 
 
 //"C:\\Users\\Six square\\Desktop\\程式語言練習\\java\\smart_contract\\src\\main\\java\\contract.txt"
 public class library {
-    protected static List<List<String>> file_analyses(String Path) throws FileNotFoundException {
+    protected static List<List<String>> file_analyses(String Path) throws IOException {
         List<List<String>> lines = new ArrayList<>();
         File doc = new File(Path);
-        Scanner obj = new Scanner(doc);
+        FileReader fileReader = new FileReader(doc);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        //多行註解旗標
+        boolean MLCF = false;
+
         //以行為單位讀取資料
-        while (obj.hasNextLine()) {
+        String str;
+        while ((str = bufferedReader.readLine()) != null) {
             //存每一行的每個詞
             List<String> word_List = new ArrayList<>();
-            //將每一行的每個字暫存，處理玩家到word_List
+            //將每一行的每個字暫存，處理完加到word_List
             StringBuilder word = new StringBuilder();
-            String str = obj.nextLine();
             //遇到註解符號的話後面就不理它
             out:
             //依序讀每個character
@@ -27,18 +30,19 @@ public class library {
                     //如果是空格代表前面這些字是一組的，所以將前一組自存到List裡面
                     case ' ' -> {
                         //沒有東西不加入，不然很亂又佔記憶體
-                        if (!word.toString().equals("")) {
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
                     }
                     //將字串單獨放入一個格子裡，因為如果遇到特殊字元會被切割
                     case '\"' -> {
-                        if (!word.toString().equals("")) {
+                        //將之前的字串放入word_list
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
-                        word_List.add(Character.toString(chr));
+                        word.append(chr);
                         i++;
                         char tmp = str.charAt(i);
                         while (tmp != '\"') {
@@ -46,16 +50,15 @@ public class library {
                             i++;
                             tmp = str.charAt(i);
                         }
-                        if (!word.toString().equals("")) {
+                        word.append(chr);
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
-                        word_List.add(Character.toString(chr));
-                        i++;
                     }
                     //如果是;、(、)等字元會被區分開來，亦即;、(、{是被獨立加進word裡面的
                     case ';', '(', ')', '{', '}', '.', '\'', ',', '~', '[', ']', '?' -> {
-                        if (!word.toString().equals("")) {
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
@@ -63,62 +66,138 @@ public class library {
                     }
                     //因為=、<、>可能後面接一樣=、<、>的字元所以需要檢查後面是否有這些字元，沒有就加進word裡面、有就把兩個字元一起加進去word
                     case '=', '<', '>', '|', '&', '!', '*' -> {
-                        if (!word.toString().equals("")) {
+//                        System.out.println(chr);
+                        //將前面的字儲存，然後設為空
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
+//                        System.out.println("i:"+i+" str: "+str+" chr: "+chr);
+                        if (i + 1 >= str.length()) {
+                            if (!MLCF) {
+                                word.append(chr);
+                                word_List.add(word.toString());
+                                word.setLength(0);
+                            }
+                            break;
+                        }
                         char tmp = str.charAt(i + 1);
                         switch (tmp) {
-                            case '=', '<', '>', '|', '&', '!', '*' -> {
+                            case '=' ->{
+                                if(chr=='*'){
+                                    if(!word_List.isEmpty()){
+                                        String var = String.join("",word_List);
+                                        word_List.add("=");
+                                        word_List.add(var);
+                                        word_List.add(Character.toString(chr));
+                                        i++;
+                                    }
+                                }
+                                else {
+                                    word.append(chr);
+                                    word.append(tmp);
+                                    word_List.add(word.toString());
+                                    word.setLength(0);
+                                    i++;
+                                }
+                            }
+                            case '|', '&', '!', '*' -> {
                                 word.append(chr);
                                 word.append(tmp);
                                 word_List.add(word.toString());
                                 word.setLength(0);
                                 i++;
                             }
-                            default -> word_List.add(Character.toString(chr));
+                            case '>', '<' -> {
+                                word.append(chr);
+                                word.append(tmp);
+                                if (i + 2 >= str.length() && !MLCF) {
+                                    word_List.add(word.toString());
+                                    word.setLength(0);
+                                    i++;
+                                } else if (str.charAt(i + 2) == '=') {
+                                    word.append(str.charAt(i + 2));
+                                    word_List.add(word.toString());
+                                    word.setLength(0);
+                                    i += 2;
+                                } else {
+                                    word_List.add(word.toString());
+                                    word.setLength(0);
+                                    i++;
+                                }
+                            }
+                            case '/' -> {
+                                MLCF = false;
+                                word.setLength(0);
+                                break out;
+                            }
+                            default -> {
+                                if (!MLCF) {
+                                    word_List.add(Character.toString(chr));
+                                }
+                            }
                         }
 
                     }
                     //遇到運算式需要將符號分開並檢查後面是否有符號
                     case '+', '-', '%', '^' -> {
-                        if (!word.toString().equals("")) {
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
-                        if (str.charAt(i + 1) == '=') {
+                        if (str.charAt(i + 1) == '-'||str.charAt(i + 1) == '+') {
                             word.append(chr);
                             word.append(str.charAt(i + 1));
                             word_List.add(word.toString());
                             word.setLength(0);
                             i++;
+                        } else if (str.charAt(i + 1) == '=') {
+                            if(!word_List.isEmpty()){
+                                String var = String.join("",word_List);
+                                word_List.add("=");
+                                word_List.add(var);
+                                word_List.add(Character.toString(chr));
+                                i++;
+                            }
                         } else {
                             word_List.add(Character.toString(chr));
                         }
                     }
                     case '/' -> {
-                        if (str.charAt(i + 1) == '/') {
-                            break out;
-                        }
-                        if (!word.toString().equals("")) {
+                        if (!word.toString().isEmpty()) {
                             word_List.add(word.toString());
                             word.setLength(0);
                         }
-                        if (str.charAt(i + 1) == '=') {
-                            word.append(chr);
-                            word.append(str.charAt(i + 1));
-                            word_List.add(word.toString());
-                            word.setLength(0);
-                            i++;
-                        } else {
-                            word_List.add(Character.toString(chr));
+                        switch (str.charAt(i + 1)) {
+                            case '/' -> {
+                                break out;
+                            }
+                            case '=' -> {
+                                if(!word_List.isEmpty()){
+                                    String var = String.join("",word_List);
+                                    word_List.add("=");
+                                    word_List.add(var);
+                                    word_List.add(Character.toString(chr));
+                                    i++;
+                                }
+                            }
+                            case '*' -> {
+                                MLCF = true;
+                            }
+                            default -> {
+                                word_List.add(Character.toString(chr));
+                            }
                         }
                     }
                     //非上述字串就會當成跟前面的字元是一組的
                     default -> word.append(chr);
                 }
+                if (MLCF && chr != ' ') {
+                    word.setLength(0);
+                    break;
+                }
             }
-            if (!word.toString().equals("")) {
+            if (!word.toString().isEmpty()) {
                 word_List.add(word.toString());
             }
             lines.add(new ArrayList<>(word_List));
@@ -186,6 +265,7 @@ public class library {
     }
 
     private static List<List<String>> find_parameter(List<String> line) {
+        //[使否為陣列name,type]
         List<List<String>> find_parameter = new ArrayList<>();
         List<List<String>> parameter_set = new ArrayList<>();
         List<String> tmp = new ArrayList<>();
@@ -201,10 +281,9 @@ public class library {
         tmp.clear();
 
         for (List<String> P : parameter_set) {
-            if(P.isEmpty()){
+            if (P.isEmpty()) {
                 return find_parameter;
-            }
-            else if (is_array(P)) {
+            } else if (is_array(P)) {
                 tmp.add("true");
                 tmp.add(find_array_name(P));
                 tmp.add(P.get(0));
@@ -220,18 +299,20 @@ public class library {
         }
         return find_parameter;
     }
-    private static List<String> find_parents(List<String> line){
-        if(!line.contains("is")){
+
+    private static List<String> find_parents(List<String> line) {
+        if (!line.contains("is")) {
             return new ArrayList<>();
         }
         List<String> parents = new ArrayList<>();
-        for(int i= line.indexOf("is")+1;i< line.size();i++){
-            if(!Objects.equals(line.get(i), ",") && !Objects.equals(line.get(i), "{")){
+        for (int i = line.indexOf("is") + 1; i < line.size(); i++) {
+            if (!Objects.equals(line.get(i), ",") && !Objects.equals(line.get(i), "{")) {
                 parents.add(line.get(i));
             }
         }
         return parents;
     }
+
     //lines:檔案分析後的資料
     protected static List<contract> variable_analyses(List<List<String>> lines) {
         //包含所有合約的變數、函數
@@ -254,8 +335,17 @@ public class library {
                 switch (word) {
                     case "contract" -> {
                         flag.add(true);
+//                        System.out.println(word);
                         contract_list.add(new contract(line.get(j + 1)));
-                        index = contract_list.size()-1;
+                        index = contract_list.size() - 1;
+                        contract_list.get(index).add_inheritance(find_parents(line));
+                        break loop_out;
+                    }
+                    case "library" -> {
+                        flag.add(true);
+//                        System.out.println(word);
+                        contract_list.add(new contract(line.get(j + 1) + "_library"));
+                        index = contract_list.size() - 1;
                         contract_list.get(index).add_inheritance(find_parents(line));
                         break loop_out;
                     }
@@ -278,7 +368,7 @@ public class library {
                         function_or_struct[1] = true;
                         break loop_out;
                     }
-                    case "if", "for", "while", "do", "else","constructor" -> {
+                    case "if", "for", "while", "do", "else", "constructor" -> {
                         flag.add(true);
                         break loop_out;
                     }
@@ -290,19 +380,19 @@ public class library {
                     case "}" -> {
                         int flag_index = flag.size() - 1;
                         if (flag.size() == 2) {
+                            index = contract_list.size() - 1;
+                            contract contract = contract_list.get(index);
                             //function
                             if (function_or_struct[0]) {
-                                index = contract_list.size() - 1;
-                                contract_list.get(index).add_function_local_variable(variables);
-                                contract_list.get(index).add_function_array_variable(array_variables);
+                                contract.add_function_local_variable(variables);
+                                contract.add_function_array_variable(array_variables);
                             }
                             //struct
-                            if (function_or_struct[1]) {
-                                index = contract_list.size() - 1;
-                                contract_list.get(index).add_struct_variable(variables);
-                                contract_list.get(index).add_struct_array_variable(array_variables);
+                            else if (function_or_struct[1]) {
+                                contract.add_struct_variable(variables);
+                                contract.add_struct_array_variable(array_variables);
                             } else {
-                                System.out.println("error");
+                                contract.NeedInit();
                             }
                             //將讀到的variable_list存入
                             function_or_struct[0] = false;
@@ -354,6 +444,313 @@ public class library {
             }
         }
         return contract_list;
+    }
+
+    //處理每一行的字並且查看需不需要加上assert
+    private static String insert_string(List<String> line) {
+        StringBuilder str = new StringBuilder();
+        StringBuilder logic_assert = new StringBuilder();
+        //左括號的index
+        List<Integer> left_parenthesis = new ArrayList<>();
+        //右括號的index
+        List<Integer> right_parenthesis = new ArrayList<>();
+        //+的index
+        List<Integer> addition = new ArrayList<>();
+        //-的index
+        List<Integer> sub = new ArrayList<>();
+        //*的index
+        List<Integer> product = new ArrayList<>();
+        //除的index
+        List<Integer> divide = new ArrayList<>();
+//        List<Integer[]> parenthesis_position = new ArrayList<>();
+        for (int i = 0; i < line.size(); i++) {
+            String word = line.get(i);
+            switch (word) {
+                case "+" -> {
+                    str.append(" ").append(word).append(" ");
+                    addition.add(i);
+                }
+                case "-" -> {
+                    str.append(" ").append(word).append(" ");
+                    sub.add(i);
+                }
+                case "*" -> {
+                    str.append(" ").append(word).append(" ");
+                    product.add(i);
+                }
+                case "/" -> {
+                    str.append(" ").append(word).append(" ");
+                    divide.add(i);
+                }
+                case "(" -> {
+                    left_parenthesis.add(i);
+                    if ((i + 1) < line.size() && !Objects.equals(line.get(i + 1), ")") && !Objects.equals(line.get(i + 1), "(") && !Objects.equals(line.get(i + 1), "+") && !Objects.equals(line.get(i + 1), "-") && !Objects.equals(line.get(i + 1), "*") && !Objects.equals(line.get(i + 1), "/")) {
+                        str.append(word).append(line.get(i + 1));
+                        i++;
+                    } else
+                        str.append(word);
+                }
+                case ")" -> {
+                    right_parenthesis.add(i);
+                    if ((i + 1) < line.size() && !Objects.equals(line.get(i + 1), ")") && !Objects.equals(line.get(i + 1), "(") && !Objects.equals(line.get(i + 1), "+") && !Objects.equals(line.get(i + 1), "-") && !Objects.equals(line.get(i + 1), "*") && !Objects.equals(line.get(i + 1), "/")) {
+                        str.append(word).append(line.get(i + 1));
+                        i++;
+                    } else
+                        str.append(word);
+                }
+                case "[", "]", ".", ";", ":","++","--" -> {
+                    if ((i + 1) < line.size() && !Objects.equals(line.get(i + 1), ")") && !Objects.equals(line.get(i + 1), "(") && !Objects.equals(line.get(i + 1), "+") && !Objects.equals(line.get(i + 1), "-") && !Objects.equals(line.get(i + 1), "*") && !Objects.equals(line.get(i + 1), "/")) {
+                        str.append(word).append(line.get(i + 1));
+                        i++;
+                    } else
+                        str.append(word);
+                }
+                case "assert" -> {
+                    str.append("require");
+                }
+                default -> {
+                    str.append(" ").append(word);
+                }
+            }
+        }
+//        if (line.contains("assert") || line.contains("require")||line.contains("for")||line.contains("if")) {
+//            return str.toString();
+//        }
+        if(!line.contains("=")&&!line.contains("return")){
+            return str.toString();
+        }
+        //先做括號
+        while (!left_parenthesis.isEmpty()) {
+            int indexhead = left_parenthesis.get(left_parenthesis.size() - 1);
+            left_parenthesis.remove(Integer.valueOf(indexhead));
+            int indextail = 0;
+            for (int i = 0; i < right_parenthesis.size(); i++) {
+                if (right_parenthesis.get(i) > indexhead) {
+                    indextail = right_parenthesis.get(i);
+                    right_parenthesis.remove(i);
+                    break;
+                }
+            }
+            if (indextail != 0) {
+                //處理括號內運算是*的情況
+                for (int i = 0; i < product.size(); i++) {
+                    int index = product.get(i);
+                    if (index > indexhead && index < indextail) {
+                        product.remove(i);
+                        StringBuilder multiplicand = new StringBuilder();
+                        StringBuilder multiplier = new StringBuilder();
+                        for (int j = indexhead + 1; j < index; j++) {
+                            multiplicand.append(line.get(j));
+                            if (Objects.equals(line.get(j), ",")) {
+                                multiplicand.setLength(0);
+                                ;
+                            }
+                        }
+                        for (int j = index + 1; j < indextail; j++) {
+                            if (Objects.equals(line.get(j), ",")) {
+                                break;
+                            }
+                            multiplier.append(line.get(j));
+                        }
+                        logic_assert.append("assert(").append(multiplicand).append("*").append(multiplier).append("/").append(multiplicand).append("==").append(multiplier).append(");\n");
+                        break;
+                    }
+                }
+                //處理括號內運算是/的情況
+                for (int i = 0; i < divide.size(); i++) {
+                    int index = divide.get(i);
+                    if (index > indexhead && index < indextail) {
+                        divide.remove(i);
+                        StringBuilder dividend = new StringBuilder();
+                        StringBuilder divisor = new StringBuilder();
+                        for (int j = indexhead + 1; j < index; j++) {
+                            dividend.append(line.get(j));
+                            if (Objects.equals(line.get(j), ",")) {
+                                dividend.setLength(0);
+                            }
+                        }
+                        for (int j = index + 1; j < indextail; j++) {
+                            if (Objects.equals(line.get(j), ",")) {
+                                break;
+                            }
+                            divisor.append(line.get(j));
+                        }
+                        logic_assert.append("assert(").append(divisor).append(">0").append(");\n");
+                        logic_assert.append("assert(").append(dividend).append("==").append(divisor).append("*(").append(dividend).append("/").append(divisor).append(") +").append(dividend).append("%").append(divisor).append(");\n");
+                        break;
+                    }
+                }
+                //處理括號內運算是+的情況
+                for (int i = 0; i < addition.size(); i++) {
+                    int index = addition.get(i);
+                    if (index > indexhead && index < indextail) {
+                        addition.remove(i);
+                        StringBuilder addend = new StringBuilder();
+                        StringBuilder augend = new StringBuilder();
+                        for (int j = indexhead + 1; j < index; j++) {
+                            addend.append(line.get(j));
+                            if (Objects.equals(line.get(j), ",")) {
+                                addend.setLength(0);
+                            }
+                        }
+                        for (int j = index + 1; j < indextail; j++) {
+                            if (Objects.equals(line.get(j), ",")) {
+                                break;
+                            }
+                            augend.append(line.get(j));
+                        }
+                        logic_assert.append("assert(").append(addend).append("+").append(augend).append(">=").append(addend).append(");\n");
+                        break;
+                    }
+                }
+                //處理括號內運算是-的情況
+                for (int i = 0; i < sub.size(); i++) {
+                    int index = sub.get(i);
+                    if (index > indexhead && index < indextail) {
+                        sub.remove(i);
+                        StringBuilder minuend = new StringBuilder();
+                        StringBuilder subtrahend = new StringBuilder();
+                        for (int j = indexhead + 1; j < index; j++) {
+                            minuend.append(line.get(j));
+                            if (Objects.equals(line.get(j), ",")) {
+                                minuend.setLength(0);
+                            }
+                        }
+                        for (int j = index + 1; j < indextail; j++) {
+                            if (Objects.equals(line.get(j), ",")) {
+                                break;
+                            }
+                            subtrahend.append(line.get(j));
+                        }
+                        logic_assert.append("assert(").append(minuend).append(" >= ").append(subtrahend).append(");\n");
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+        //乘除混和排列
+        List<Integer> product_and_divide_index = new ArrayList<>();
+        product_and_divide_index.addAll(product);
+        product_and_divide_index.addAll(divide);
+        Collections.sort(product_and_divide_index);
+        //加減混和排列
+        List<Integer> add_and_sub_index = new ArrayList<>();
+        add_and_sub_index.addAll(addition);
+        add_and_sub_index.addAll(sub);
+        Collections.sort(add_and_sub_index);
+        List<Integer> operator = new ArrayList<>();
+        operator.addAll(add_and_sub_index);
+        operator.addAll(product_and_divide_index);
+        Collections.sort(operator);
+        //先乘除
+        if (!product_and_divide_index.isEmpty()) {
+            for (int i : product_and_divide_index) {
+                int left_edge = line.indexOf("=");
+                if (left_edge == -1 && line.contains("return")) {
+                    left_edge = line.indexOf("return");
+                } else if (left_edge == -1 && !line.contains("return")) {
+                    break;
+                }
+                int right_edge = line.size() - 1;
+                for (int j = add_and_sub_index.size() - 1; j >= 0; j--) {
+                    if (add_and_sub_index.get(j) < i) {
+                        left_edge = add_and_sub_index.get(j);
+                        break;
+                    }
+                }
+                int next_operator = operator.indexOf(i);
+                if (next_operator + 1 < operator.size() && next_operator != -1) {
+                    right_edge = operator.get(next_operator + 1);
+                }
+                StringBuilder left = new StringBuilder();
+                StringBuilder right = new StringBuilder();
+                for (int j = left_edge + 1; j < i; j++) {
+                    left.append(line.get(j));
+                }
+                for (int j = i + 1; j < right_edge; j++) {
+                    right.append(line.get(j));
+                }
+                if (product.contains(i)) {
+                    logic_assert.append("assert(").append(left).append("*").append(right).append("/").append(left).append("==").append(right).append(");\n");
+                } else {
+                    logic_assert.append("assert(").append(right).append(">0").append(");\n");
+                    logic_assert.append("assert(").append(left).append("==").append(right).append("*(").append(left).append("/").append(right).append(") +").append(left).append("%").append(right).append(");\n");
+                }
+            }
+        }
+        //後加減
+        if (!add_and_sub_index.isEmpty()) {
+            for (int i = 0; i < add_and_sub_index.size(); i++) {
+                int left_edge = line.indexOf("=");
+                if (left_edge == -1 && line.contains("return")) {
+                    left_edge = line.indexOf("return");
+                } else if (left_edge == -1 && !line.contains("return")) {
+                    break;
+                }
+                int right_edge = line.size() - 1;
+                int next_operator = add_and_sub_index.get(i);
+                if (i + 1 < add_and_sub_index.size() && next_operator != -1) {
+                    right_edge = add_and_sub_index.get(i + 1);
+                }
+                StringBuilder left = new StringBuilder();
+                StringBuilder right = new StringBuilder();
+                int index = add_and_sub_index.get(i);
+                for (int j = left_edge + 1; j < index; j++) {
+                    left.append(line.get(j));
+                }
+                for (int j = index + 1; j < right_edge; j++) {
+                    right.append(line.get(j));
+                }
+                if (addition.contains(index)) {
+                    logic_assert.append("assert(").append(left).append("+").append(right).append(">=").append(left).append(");\n");
+                } else {
+                    logic_assert.append("assert(").append(left).append(" >= ").append(right).append(");\n");
+                }
+            }
+        }
+        if (!logic_assert.isEmpty()) {
+            str.insert(0, logic_assert);
+        }
+        return str.toString();
+    }
+    protected static void creat_fuzzy_testing_file(List<List<String>> lines,String path) throws IOException {
+        //記得改檔名成sol
+        // String path = "./testing_file.sol";
+        try (FileWriter fw = new FileWriter(path);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            for (List<String> line : lines) {
+                String write_string = insert_string(line);
+                if (!write_string.isEmpty()) {
+                    bw.write(write_string);
+                    bw.newLine();
+                }
+            }
+            System.out.println("File write completed");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An error occurred while writing to the file");
+        }
+    }
+    protected static void creat_fuzzy_testing_file(List<List<String>> lines) throws IOException {
+        //記得改檔名成sol
+        String path = "C:\\Users\\Six square\\Desktop\\程式語言練習\\java\\smart_contract\\src\\main\\java\\testing_file.txt";
+        try (FileWriter fw = new FileWriter(path);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            for (List<String> line : lines) {
+                String write_string = insert_string(line);
+                if (!write_string.isEmpty()) {
+                    bw.write(write_string);
+                    bw.newLine();
+                }
+            }
+            System.out.println("File write completed");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An error occurred while writing to the file");
+        }
     }
 //    protected static void minimum_visibility(List<List<String>> lines , List<contract> contracts){
 //

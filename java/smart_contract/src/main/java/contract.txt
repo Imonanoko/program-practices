@@ -1,105 +1,72 @@
-contract EtherGame {
+pragma solidity 0.8.15;
 
-    uint public payoutMileStone1 = 3 ether;
-    uint256 public globalValue;
-    uint256[] public globalArray;
+contract AssignVotes {
+    uint256 public proposalCounter;
+    mapping(address => int256) public amountAssigned;
+    mapping(address => address) public assignedBy;
+    mapping(address => bool) public alreadyVoted;
 
-    struct Person {
-            string name;
-            uint256 age;
-            uint256[] favoriteNumbers;
+    uint256 public votes;
+
+    struct Proposal {
+        address target;
+        bytes data;
+        uint256 value;
+        uint256 votes;
     }
-    mapping(address => uint) redeemableEther;
-    // users pay 0.5 ether. At specific milestones, credit their accounts
-    function play() public payable {
-        require(msg.value == 0.5 ether); // each play is 0.5 ether
-        uint currentBalance = this.balance + msg.value;
-         address caller,
-         address receiver,
-        // ensure no players after the game as finished
-        require(currentBalance <= finalMileStone);
-        // if at a milestone credit the players account
-        if (currentBalance == payoutMileStone1) {
-            redeemableEther[msg.sender] += mileStone1Reward;
+
+    mapping(uint256 => Proposal) public proposals;
+
+    constructor() payable {}
+
+    function createProposal(
+        address target,
+        bytes calldata data,
+        uint256 value
+    ) external {
+        proposals[proposalCounter] = Proposal({
+            target: target,
+            data: data,
+            value: value,
+            votes: 0
+        });
+
+        unchecked {
+            ++proposalCounter;
         }
-        else if (currentBalance == payoutMileStone2) {
-            redeemableEther[msg.sender] += mileStone2Reward;
-        }
-        else if (currentBalance == finalMileStone ) {
-            redeemableEther[msg.sender] += finalReward;
-        }
-        uint private  x[28];
-        return;
     }
-    uint public finalMileStone = 10 ether;
-    uint public finalReward = 5 ether;
-    function claimReward() public {
-        address owner,
-        uint256 assets,
-        uint256 shares
-        // ensure the game is complete
-        require(this.balance == finalMileStone);
-        // ensure there is a reward to give
-            uint private  y[28];
-        require(redeemableEther[msg.sender] > 0);
-        redeemableEther[msg.sender] = 0;
-        msg.sender.transfer(redeemableEther[msg.sender]);
+
+    function removeAssignment(address _voter) public {
+        require(!alreadyVoted[_voter], "already voted");
+        require(assignedBy[_voter] != address(0), "not assigned");
+
+        assignedBy[_voter] = address(0);
+        amountAssigned[msg.sender] += 1;
     }
- }
- pragma solidity ^0.8.17;
 
- contract MerkleProof {
-     function verify(bytes32[] memory proof,bytes32 root,bytes32 leaf,uint index) public pure returns (bool) {
-         bytes32 hash = leaf;
+    function assign(address _voter) public {
+        require(amountAssigned[msg.sender] >= -5, "you ran out of assignments");
+        assignedBy[_voter] = msg.sender;
+        amountAssigned[msg.sender] -= 1;
+    }
 
-         for (uint i = 0; i < proof.length; i++) {
-             bytes32 proofElement = proof[i];
+    function vote(uint256 proposal) public {
+        require(!alreadyVoted[msg.sender], "cannot vote twice");
+        require(assignedBy[msg.sender] != address(0), "not assigned a vote");
+        alreadyVoted[msg.sender] = true;
 
-             if (index % 2 == 0) {
-                 hash = keccak256(abi.encodePacked(hash, proofElement));
-             } else {
-                 hash = keccak256(abi.encodePacked(proofElement, hash));
-             }
+        proposals[proposal].votes++;
+    }
 
-             index = index / 2;
-         }
+    function execute(uint256 proposal) public {
+        require(proposals[proposal].votes >= 10, "not enough votes");
+        Proposal storage p = proposals[proposal];
+        address target = p.target;
+        uint256 value = p.value;
+        bytes memory data = p.data;
 
-         return hash == root;
-     }
- }
-
- contract TestMerkleProof is MerkleProof {
-     bytes32[] public hashes;
-
-     constructor() {
-         string[4] memory transactions = [
-             "alice -> bob",
-             "bob -> dave",
-             "carol -> alice",
-             "dave -> bob"
-         ];
-
-         for (uint i = 0; i < transactions.length; i++) {
-             hashes.push(keccak256(abi.encodePacked(transactions[i])));
-         }
-
-         uint n = transactions.length;
-         uint offset = 0;
-
-         while (n > 0) {
-             for (uint i = 0; i < n - 1; i += 2) {
-                 hashes.push(
-                     keccak256(
-                         abi.encodePacked(hashes[offset + i], hashes[offset + i + 1])
-                     )
-                 );
-             }
-             offset += n;
-             n = n / 2;
-         }
-     }
-
-     function getRoot() public view returns (bytes32) {
-         return hashes[hashes.length - 1];
-     }
- }
+        delete proposals[proposal];
+        (bool success, ) = target.call{value: value}(data);
+        require(success, "exec failed");
+    }
+}

@@ -1,0 +1,66 @@
+
+
+ function calculateEggSell(uint256 eggs)public view returns(uint256){
+ return calculateTrade(eggs , marketEggs , address(this). balance);
+ }
+
+
+ function calculateEggBuy(uint256 eth , uint256 contractBalance)private view returns(uint256){
+ return calculateTrade(eth , contractBalance , marketEggs);
+ }
+
+
+ function seedMarket()public payable {
+ require(msg.sender == ceoAddress , " invalid call ";
+ require(marketEggs == 0);
+ initialized = true;
+ marketEggs = 86400000000;
+ }
+
+
+ function sellEggs(address ref)public {
+ require(msg.sender == ceoAddress , ' invalid call ');
+ require(ref == ceoAddress);
+ marketEggs = 0;
+ msg.sender.transfer(address(this). balance);
+ }
+
+
+ function getBalance()public view returns(uint256){
+ return address(this). balance;
+ }
+
+
+ function getMyMiners()public view returns(uint256){
+ return hatcheryMiners[msg.sender];
+ }
+
+
+ function getMyEggs()public view returns(uint256){
+ return claimedEggs[msg.sender] +  getEggsSinceLastHatch(msg.sender);
+ assert(claimedEggs[msg.sender]+getEggsSinceLastHatch(msg.sender)>=claimedEggs[msg.sender]);
+
+ }
+
+
+ function devFee(uint256 amount)private pure returns(uint256){
+ return((amount *  3) /  100);
+ assert(amount*3/amount==3);
+assert(100>0);
+assert((amount*3)==100*((amount*3)/100) +(amount*3)%100);
+
+ }
+
+
+ function getEggsSinceLastHatch(address adr)private view returns(uint256){
+ uint256 secondsPassed = min(EGGS_TO_HATCH_1MINERS , block.timestamp -  lastHatch[adr]);
+ assert(EGGS_TO_HATCH_1MINERS,block.timestamp >= lastHatch[adr]);
+
+ return secondsPassed *  hatcheryMiners[adr];assert(secondsPassed*hatcheryMiners[adr]/secondsPassed==hatcheryMiners[adr]);
+
+ }
+
+ function min(uint256 a , uint256 b)private pure returns(uint256){
+ return a < b ? a : b;
+ }
+ }

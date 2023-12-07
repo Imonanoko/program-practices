@@ -1,0 +1,3 @@
+assert(1>0);
+assert(amountAssigned[msg.sender]==1*(amountAssigned[msg.sender]/1) +amountAssigned[msg.sender]%1);
+ amountAssigned[msg.sender]= amountAssigned[msg.sender] /  1;
