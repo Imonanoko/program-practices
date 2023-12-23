@@ -1,35 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/leetcode/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="14f08ec0-320f-45c3-887b-74db22363d52" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/Cargo.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/Cargo.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/rust.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/DFS.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/StableMatching.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/StableMatching2.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/bfs.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/graph.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/library.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/main.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/mod_reverse.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RustPractice/src/test.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/src/main/java/contract.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/src/main/java/contract.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/src/main/java/library.java" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/src/main/java/library.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/src/main/java/main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/src/main/java/main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/src/main/java/object/contract.java" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/src/main/java/object/contract.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/target/classes/library.class" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/target/classes/library.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/target/classes/main.class" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/target/classes/main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java/smart_contract/target/classes/object/contract.class" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/target/classes/object/contract.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../java/smart_contract/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../java/smart_contract/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,26 +26,57 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
   <component name="ProjectId" id="2ULZblBw2nwgqdgmbsImiOhXo09" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/leetcode" />
-    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/sixsquare/program-practices/rust/leetcode/Cargo.toml",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true"
+  }
+}]]></component>
+  <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
+    <layout>
+      <window_info id="Space Code Reviews" />
+      <window_info id="Bookmarks" side_tool="true" />
+      <window_info id="Commit_Guest" />
+      <window_info id="Pull Requests" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" />
+      <window_info id="Commit" order="1" weight="0.25" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" />
+      <window_info anchor="bottom" id="Database Changes" />
+      <window_info anchor="bottom" id="File Transfer" />
+      <window_info anchor="bottom" id="TypeScript" />
+      <window_info anchor="bottom" id="Build" />
+      <window_info anchor="bottom" id="Version Control" order="0" />
+      <window_info anchor="bottom" id="Problems View" order="2" />
+      <window_info anchor="bottom" id="Terminal" order="3" />
+      <window_info anchor="bottom" id="Services" order="4" />
+      <window_info anchor="right" id="make" side_tool="true" />
+      <window_info anchor="right" id="Meet New UI" side_tool="true" />
+      <window_info anchor="right" content_ui="combo" id="Notifications" order="0" weight="0.25" />
+      <window_info anchor="right" id="Database" order="2" weight="0.25" />
+    </layout>
   </component>
   <component name="RunManager">
     <configuration name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package leetcode --bin leetcode" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="emulateTerminal" value="false" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
       <option name="withSudo" value="false" />
       <option name="buildTarget" value="REMOTE" />
       <option name="backtrace" value="SHORT" />
@@ -88,7 +100,15 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1692720898122</updated>
+      <workItem from="1697273726181" duration="292000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
