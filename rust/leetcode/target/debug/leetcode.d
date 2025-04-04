@@ -1,1 +1,1 @@
-C:\Users\Six\ square\Desktop\程式語言練習\rust\leetcode\target\debug\leetcode.exe: C:\Users\Six\ square\Desktop\程式語言練習\rust\leetcode\src\main.rs
+/home/sixsquare/program-practices/rust/leetcode/target/debug/leetcode: /home/sixsquare/program-practices/rust/leetcode/src/Maximum_Absolute_Sum_of_Any_Subarray.rs /home/sixsquare/program-practices/rust/leetcode/src/main.rs
