@@ -53,7 +53,16 @@ def doubleAndAdd(P:list,n:int,a:int,p:int):
         Q = addition(Q,Q,a,p)
         n = n//2    
     return R
-    
+def montgomeryBinary(P:list,k:int,a:int,p:int):
+    k_bin = bin(k)[2:]
+    R0,R1 = P,addition(P,P,a,p)
+    for bit in k_bin[1:]:
+        if bit == '0':
+           R0,R1 = addition(R0,R0,a,p),addition(R0,R1,a,p)
+        else:
+            R0,R1 = addition(R0,R1,a,p),addition(R1,R1,a,p)
+    return R0
+     
 a = 497
 b = 1768
 p = 9739

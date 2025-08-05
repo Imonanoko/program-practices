@@ -1,41 +1,14 @@
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
-import hashlib
-def is_pkcs7_padded(message):
-    padding = message[-message[-1]:]
-    return all(padding[i] == len(padding) for i in range(0, len(padding)))
-
-
-def decrypt_flag(shared_secret: int, iv: str, ciphertext: str):
-    # Derive AES key from shared secret
-    sha1 = hashlib.sha1()
-    sha1.update(str(shared_secret).encode('ascii'))
-    key = sha1.digest()[:16]
-    # Decrypt flag
-    ciphertext = bytes.fromhex(ciphertext)
-    iv = bytes.fromhex(iv)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    plaintext = cipher.decrypt(ciphertext)
-
-    if is_pkcs7_padded(plaintext):
-        return unpad(plaintext, 16).decode('ascii')
-    else:
-        return plaintext.decode('ascii')
-alice = {"p": "0xffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca237327ffffffffffffffff", "g": "0x02", "A": "0x3aef48aa3ecb3f38b3b2f18290d62ffb5f17d11ec391c6a27396c8f142bf67d3c4d4cdfa22feddef896e93d472b9ac48f6a9dc212b6b70121576fb74e24cbc87a1d029568c6ac83888d308e8a4166b50a4e92fa00df491884e2479e69449ccbbac4c590e59d9a74642ef179408173ff12dc21a7731c93176e0f302e9842441cb5b4048aaff6ed63d02176d001340c64f81cda298bff69380a1c21897c0e4a2901e1721cfd94558a04dd05412b3c9e2b0494d3ca7632d230562329791a1ec0793"}
-p = int(alice["p"], 16)
-g = int(alice["g"], 16)
-A = int(alice["A"], 16)
-a = 1933915966357557724218283604205219887137310982527300227649767087263626178173009110338293850560545134615614677058073992933889037391387874361333891140234278265255409225184315504636087408536106474275049996628038075157452223232176899291074397253903991428131058354249182989035302232307368482236559667878809943989508574002201706671872006663366387920088834914360286851053354544245957657664299295049224532295471543776210219826462038393288951474171380793603663346203357586
-print("a:", a)
-fake_A = pow(g, a, p)
-alice["A"] = hex(fake_A)
-print(alice)
-
-# {"p": "0xffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca237327ffffffffffffffff", "g": "0x02", "A": "0x1384db3146f8a4e47cc1d5e819c37fbe42e6558f6abeee2334038c79cf8e72707b1c03bc55a46f619e1dfe5f3db749f39c5f42010631b3e7ac63f926253570b679f40ebfd353da4dd831d8566df7676f6956fe1935e59216584fe41d8049837bb0f4b79d4588aa9ea5c92778ce7e80fb18dff537df55d429a1108326d4d0c2158babb1cf4c6509ea63b3a02d5290f9825edd7d6d54810ed69bd7ff33843de00e6d6021030a9de62d94a061fcbbe2fb38f8a487f85a9b599dfc0db992cc538ef2"}
-bob = {"B": "0xb2a02eddf9a8199d23b0e83f4aeffa7f67b7452630bb2a0fa777a964a9ccbaa2214114222412fd53f827502bda127ba4d6647ef09ec6641a516038a4220cf5aa614d4fd057fbb17fb298291889d33ac53d2c1fdb39b945591b0c05fc4a0a4e434de462fa5806208f54609e44b47271465058d8558ff85e2fa57d247a097dce2f2c265a950f9c5a4cfd1cae0a31afe8b1e0e9712c91bbf781c0843d84a8797de0a42819c112476594be4c0c4a723af36155fe521560bb32668436c835da72087a"}
-B = int(bob["B"], 16)
-shared_secret = pow(B, a, p)
-alice = {"iv": "e6076f315f45fbeedab1c96b1864e7fb", "encrypted_flag": "a6a66956cffcfa58198c91d743613c526e753844198589b5518bbaea0d2520ab"}
-iv = alice["iv"]
-ciphertext = alice["encrypted_flag"]
-print(decrypt_flag(shared_secret, iv, ciphertext))
+a = {
+    "a":{
+        "b": 1,
+        "c": 2,
+        "d": 3
+    },
+    "b":{
+        "b": 1,
+        "c": 2,
+        "d": 3
+    }
+}
+for key, value in a.items():
+    print(key, value)
